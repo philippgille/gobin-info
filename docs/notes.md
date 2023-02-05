@@ -8,6 +8,11 @@
   - launchpad.net: No typical owner/project separation on the main project site? E.g. <https://launchpad.net/apparmor>. Only the tree has it: <https://code.launchpad.net/~apparmor-dev/apparmor/+git/apparmor/+ref/master>
 - Go 1.20 changed `go version -m` a bit (e.g. working with non-executable files). Take inspiration from that.
 - Improve repo examples in notes.md to contain package and module
+- Parallelize iterating through files (mostly useful for parallelizing HTTP requests for vanity URL resolving)
+- Make vanity resolving optional (some people might want to prevent HTTP requests)
+- Add tests (see below "To test" section)
+- To fulfill README (README-driven-development):
+  - Implement flags: -wd, -gobin etc (see README)
 
 ## Repo examples
 
