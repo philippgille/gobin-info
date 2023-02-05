@@ -21,15 +21,28 @@ But that's cumbersome if you want to list the origins of all your installed Go b
 You can run `gobin-info` in several modes:
 
 1. `gobin-info /path/to/dir` lists info about the Go binaries in a given directory (relative or absolute)
-2. `gobin-info -wd` lists info about the Go binaries in your *working directory*
-3. `gobin-info -gobin` lists info about the Go binaries in your *`$GOBIN`* directory
-4. `gobin-info -gopath` lists info about the Go binaries in your *`$GOPATH/bin`* directory
-5. `gobin-info -path` lists info about the Go binaries in your *`$PATH`*
+2. 🚧 `gobin-info -wd` lists info about the Go binaries in your *working directory*
+3. 🚧 `gobin-info -gobin` lists info about the Go binaries in your *`$GOBIN`* directory
+4. 🚧 `gobin-info -gopath` lists info about the Go binaries in your *`$GOPATH/bin`* directory
+5. 🚧 `gobin-info -path` lists info about the Go binaries in your *`$PATH`*
    - ⚠ Currently this includes the ones you install via package managers like Homebrew, but in the future we might add an option to try and exclude those
 
 ### Example
 
 ```text
-$ gobin-info -gopath
-TODO
+$ gobin-info ~/go/bin
+arc          v3.5.1                             https://github.com/mholt/archiver
+dlv          v1.20.1                            https://github.com/go-delve/delve
+fyne_demo    v2.3.0                             https://github.com/fyne-io/fyne
+go-outline   v0.0.0-20210608161538-9736a4bde949 https://github.com/ramya-rao-a/go-outline
+go1.17       v0.0.0-20220609182932-6cd2f0e318f7 ❓https://go.googlesource.com/dl❓
+gomodifytags v1.16.0                            https://github.com/fatih/gomodifytags
+gopkgs       v2.1.2                             https://github.com/uudashr/gopkgs
+goplay       v1.0.0                             https://github.com/haya14busa/goplay
+gopls        v0.11.0                            ❓https://go.googlesource.com/tools❓
+gotests      v1.6.0                             https://github.com/cweill/gotests
+impl         v1.1.0                             https://github.com/josharian/impl
+lazygit      v0.32.2                            https://github.com/jesseduffield/lazygit
+mage         (devel)                            https://github.com/magefile/mage
+staticcheck  v0.3.3                             https://github.com/dominikh/go-tools
 ```
