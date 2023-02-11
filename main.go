@@ -309,6 +309,9 @@ func scanFile(path string, info fs.FileInfo) (*BinInfo, error) {
 			// We assume that the resolved URL is prefixed with a protocol
 			if strings.HasPrefix(resolvedURL, "http") {
 				_, resolvedURL, ok = strings.Cut(resolvedURL, "//") // trim protocol
+				if !ok {
+					return nil, fmt.Errorf("couldn't trim protocol from resolved URL %q", resolvedURL)
+				}
 			}
 			// Resolved URL might be known or unknown Git provider.
 			gitProvider = strings.Split(resolvedURL, "/")[0]
