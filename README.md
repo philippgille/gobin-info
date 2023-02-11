@@ -29,7 +29,8 @@ You can run `gobin-info` in several modes:
 ### Example
 
 ```text
-$ gobin-info ~/go/bin
+$ gobin-info -gopath
+Scanning /home/johndoe/go/bin
 arc          v3.5.1                             https://github.com/mholt/archiver
 dlv          v1.20.1                            https://github.com/go-delve/delve
 fyne_demo    v2.3.0                             https://github.com/fyne-io/fyne
