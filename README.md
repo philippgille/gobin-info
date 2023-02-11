@@ -14,7 +14,7 @@ But that's cumbersome if you want to list the origins of all your installed Go b
 
 ## Installation
 
-`go install github.com/philippgille/gobin-info/cmd/gobin-info@latest`
+`go install github.com/philippgille/gobin-info@latest`
 
 ## Usage
 
