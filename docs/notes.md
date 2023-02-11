@@ -11,6 +11,7 @@
 - Make vanity resolving optional (some people might want to prevent HTTP requests)
 - Add tests (see below "To test" section)
 - `-v` flag for a more verbose mode (version-specific tree URL, package path for easier reinstall)
+- Commands like `dep` and `build` to show *only* the dependencies or build info, basically to allow a more selective output over `go version -m`
 
 ## Repo examples
 
