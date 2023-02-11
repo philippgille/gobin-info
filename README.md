@@ -20,12 +20,11 @@ But that's cumbersome if you want to list the origins of all your installed Go b
 
 You can run `gobin-info` in several modes:
 
-1. `gobin-info /path/to/dir` lists info about the Go binaries in a given directory (relative or absolute)
-2. 🚧 `gobin-info -wd` lists info about the Go binaries in your *working directory*
-3. 🚧 `gobin-info -gobin` lists info about the Go binaries in your *`$GOBIN`* directory
-4. 🚧 `gobin-info -gopath` lists info about the Go binaries in your *`$GOPATH/bin`* directory
-5. 🚧 `gobin-info -path` lists info about the Go binaries in your *`$PATH`*
-   - ⚠ Currently this includes the ones you install via package managers like Homebrew, but in the future we might add an option to try and exclude those
+- `gobin-info /path/to/dir` lists info about the Go binaries in a given directory (relative or absolute)
+- `gobin-info -wd` lists info about the Go binaries in your *working directory*
+- `gobin-info -gobin` lists info about the Go binaries in your *`$GOBIN`* directory
+- `gobin-info -gopath` lists info about the Go binaries in your *`$GOPATH/bin`* directory
+- 🚧 `gobin-info -path` lists info about the Go binaries in your *`$PATH`*
 
 ### Example
 

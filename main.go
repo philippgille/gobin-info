@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"debug/buildinfo"
+	"flag"
 	"fmt"
 	"io/fs"
 	"log"
@@ -84,13 +85,57 @@ type BinInfo struct {
 	repoURL string // URL that can be visited in a browser, after vanity URL resolving. E.g. for binary `arc` installed from `github.com/mholt/archiver/v3/cmd/arc@latest` with v3.5.1 being latest, it's "https://github.com/mholt/archiver". We could make this version-specific, to "https://github.com/mholt/archiver/tree/v3.5.1".
 }
 
+var (
+	wd     = flag.Bool("wd", false, "Scan current working directory")
+	gobin  = flag.Bool("gobin", false, `Scan "$GOBIN" directory`)
+	gopath = flag.Bool("gopath", false, `Scan "$GOPATH/bin" directory`)
+)
+
 func main() {
-	// Precondition: CLI must be called with one argument
-	if len(os.Args) == 1 || len(os.Args) > 2 {
-		log.Fatalln("gobin-info requires exactly one argument")
+	// Precondition: CLI must be called with one argument.
+	// os.Args always holds the name of the program as the first argument.
+	if len(os.Args) != 2 {
+		log.Fatalln("gobin-info requires exactly one argument - either a path to a file/directory, or a flag.")
 	}
 
-	path := os.Args[1]
+	flag.Parse()
+
+	var path string
+	var err error
+	if *wd {
+		path, err = os.Getwd()
+		if err != nil {
+			log.Fatalln("Error getting current working directory:", err)
+		}
+	} else if *gobin {
+		path = os.Getenv("GOBIN")
+		if path == "" {
+			log.Fatalln("GOBIN environment variable is empty or not set.")
+		}
+	} else if *gopath {
+		env := os.Getenv("GOPATH")
+		if env == "" {
+			// When the env var is not set, Go's own behavior is to use $HOME/go.
+			// See https://pkg.go.dev/cmd/go#hdr-GOPATH_environment_variable
+			log.Println("GOPATH is not set, falling back to $HOME/go like Go does")
+			env, err = os.UserHomeDir()
+			if err != nil {
+				log.Fatalln("Couldn't get user home directory:", err)
+			}
+			env = filepath.Join(env, "go")
+		}
+		// GOPATH can actually be multiple directories, separated by colon on Unix, semicolon on Windows.
+		// The $GOPATH/bin is always in the *first* of those directories.
+		// See https://pkg.go.dev/cmd/go#hdr-GOPATH_environment_variable and https://go.dev/doc/code#Command
+		env = strings.Split(env, string(os.PathListSeparator))[0]
+		path = filepath.Join(env, "bin")
+	} else {
+		// Can be path to a file or directory
+		path = os.Args[1]
+	}
+
+	log.Println("Scanning", path)
+
 	// Iterate trough files in the path
 	binInfos, err := scanDir(path)
 	if err != nil {

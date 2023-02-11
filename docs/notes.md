@@ -11,8 +11,6 @@
 - Parallelize iterating through files (mostly useful for parallelizing HTTP requests for vanity URL resolving)
 - Make vanity resolving optional (some people might want to prevent HTTP requests)
 - Add tests (see below "To test" section)
-- To fulfill README (README-driven-development):
-  - Implement flags: -wd, -gobin etc (see README)
 
 ## Repo examples
 
