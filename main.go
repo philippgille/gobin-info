@@ -57,6 +57,18 @@ var knownGitProviders = map[string]Funcs{
 		GetRepoURL: func(owner, repo string) string {
 			return fmt.Sprintf("https://cs.opensource.google/%s/%s", owner, repo)
 		}},
+	"go.googlesource.com": {
+		// There's no owner/repo separation. E.g. go.googlesource.com/tools
+		GetOwnerRepoPair: func(modulePath string) (string, string, error) {
+			subs := strings.Split(modulePath, "/")
+			if len(subs) < 2 {
+				return "", "", fmt.Errorf("couldn't determine owner name in module path '%s'", modulePath)
+			}
+			return "", subs[1], nil
+		},
+		GetRepoURL: func(_, repo string) string {
+			return fmt.Sprintf("https://go.googlesource.com/%s", repo)
+		}},
 	"gitee.com": {
 		GetOwnerRepoPair: defaultGetOwnerRepoPair,
 		GetRepoURL: func(owner, repo string) string {

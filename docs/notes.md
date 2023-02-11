@@ -39,6 +39,11 @@
   - Module: ?
   - URL: <https://cs.opensource.google/gvisor/gvisor>
   - With tree: <https://cs.opensource.google/gvisor/gvisor/+/refs/tags/release-20230123.0:>
+- go.googlesource.com
+  - Package: golang.org/x/tools/gopls (vanity)
+  - Module: golang.org/x/tools/gopls (vanity)
+  - URL: <https://go.googlesource.com/tools>
+  - With tree: <https://go.googlesource.com/tools/+/refs/heads/master>
 - gitee.com
   - Package: ?
   - Module: ?
