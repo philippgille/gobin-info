@@ -14,7 +14,9 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
+	"sync"
 )
 
 // Example: <meta name="go-import" content="fyne.io/fyne/v2 git https://github.com/fyne-io/fyne">
@@ -110,7 +112,7 @@ func main() {
 		log.Fatalln("Couldn't get path:", err)
 	}
 
-	// Scan path
+	// Scan path (file or dir)
 	info, err := os.Stat(path)
 	if err != nil {
 		log.Fatalln("Couldn't get file/dir info:", err)
@@ -132,6 +134,11 @@ func main() {
 			binInfos = append(binInfos, *binInfo)
 		}
 	}
+
+	// Sort
+	sort.Slice(binInfos, func(i, j int) bool {
+		return binInfos[i].filename < binInfos[j].filename
+	})
 
 	// Print result
 	printResult(binInfos)
@@ -176,28 +183,60 @@ func getPath() (string, error) {
 }
 
 // scanDir scans a directory for executables to run scanFile on.
-func scanDir(dir string) ([]BinInfo, error) {
+func scanDir(path string) ([]BinInfo, error) {
 	var binInfos []BinInfo
 
-	entries, err := os.ReadDir(dir)
+	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
 	}
 
+	wg := sync.WaitGroup{}
+	resChan := make(chan *BinInfo, len(entries))
+	errChan := make(chan error, len(entries))
 	for _, entry := range entries {
-		if entry.Type().IsRegular() || entry.Type()&fs.ModeSymlink != 0 {
+		wg.Add(1)
+		go func(entry fs.DirEntry) {
+			defer wg.Done()
+
+			// Skip entries that are neither regular files (e.g. directories) nor symlinks
+			if !(entry.Type().IsRegular() || entry.Type()&fs.ModeSymlink != 0) {
+				resChan <- nil
+				return
+			}
+
 			info, err := entry.Info()
 			if err != nil {
-				return nil, err
+				errChan <- err
+				return
 			}
-			binInfo, err := scanFile(filepath.Join(dir, info.Name()), info)
+			binInfo, err := scanFile(filepath.Join(path, info.Name()), info)
 			if err != nil {
-				return nil, err
+				errChan <- err
+				return
 			}
 			// scanFile returns (nil, nil) if the file is not an executable
 			if binInfo == nil {
-				continue
+				resChan <- nil
+				return
 			}
+			resChan <- binInfo
+		}(entry)
+	}
+
+	wg.Wait()
+
+	// Only returns if there's a value in the channel, otherwise continues.
+	select {
+	case err := <-errChan:
+		return nil, err
+	default:
+	}
+
+	// With no error, we know that the resChan has len(entries) values.
+	for i := 0; i < len(entries); i++ {
+		binInfo := <-resChan
+		if binInfo != nil {
 			binInfos = append(binInfos, *binInfo)
 		}
 	}
@@ -207,27 +246,27 @@ func scanDir(dir string) ([]BinInfo, error) {
 
 // scanFile scans file to try to return the Go binary info.
 // If the file is not a Go binary, scanFile returns (nil, nil).
-func scanFile(file string, info fs.FileInfo) (*BinInfo, error) {
+func scanFile(path string, info fs.FileInfo) (*BinInfo, error) {
 	if info.Mode()&fs.ModeSymlink != 0 {
 		// Accept file symlinks only.
-		i, err := os.Stat(file)
+		i, err := os.Stat(path)
 		if err != nil || !i.Mode().IsRegular() {
 			return nil, err
 		}
 		info = i
 	}
 
-	if !isExe(file, info) {
+	if !isExe(path, info) {
 		return nil, nil
 	}
 
-	bi, err := buildinfo.ReadFile(file)
+	bi, err := buildinfo.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
 	binInfo := BinInfo{
-		filename: filepath.Base(file),
+		filename: filepath.Base(path),
 
 		packagePath:   bi.Path,
 		modulePath:    bi.Main.Path,
