@@ -11,6 +11,7 @@
 - Parallelize iterating through files (mostly useful for parallelizing HTTP requests for vanity URL resolving)
 - Make vanity resolving optional (some people might want to prevent HTTP requests)
 - Add tests (see below "To test" section)
+- `-v` flag for a more verbose mode (version-specific tree URL, package path for easier reinstall)
 
 ## Repo examples
 
