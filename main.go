@@ -107,11 +107,27 @@ func main() {
 		log.Fatalln("Couldn't get path:", err)
 	}
 
-	// Iterate trough files in the path
-	log.Println("Scanning", path)
-	binInfos, err := scanDir(path)
+	// Scan path
+	info, err := os.Stat(path)
 	if err != nil {
-		log.Fatalln("Error scanning dir:", err)
+		log.Fatalln("Couldn't get file/dir info:", err)
+	}
+	log.Println("Scanning", path)
+	var binInfos []BinInfo
+	if info.IsDir() {
+		binInfos, err = scanDir(path)
+		if err != nil {
+			log.Fatalln("Couldn't scan dir:", err)
+		}
+	} else {
+		binInfo, err := scanFile(path, info)
+		if err != nil {
+			log.Fatalln("Couldn't scan file:", err)
+		}
+		// scanFile returns (nil, nil) if the file is not an executable
+		if binInfo != nil {
+			binInfos = append(binInfos, *binInfo)
+		}
 	}
 
 	// Print result
@@ -160,26 +176,30 @@ func getPath() (string, error) {
 func scanDir(dir string) ([]BinInfo, error) {
 	var binInfos []BinInfo
 
-	err := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-		if d.Type().IsRegular() || d.Type()&fs.ModeSymlink != 0 {
-			info, err := d.Info()
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if entry.Type().IsRegular() || entry.Type()&fs.ModeSymlink != 0 {
+			info, err := entry.Info()
 			if err != nil {
-				return err
+				return nil, err
 			}
-			binInfo, err := scanFile(path, info)
+			binInfo, err := scanFile(filepath.Join(dir, info.Name()), info)
 			if err != nil {
-				return err
+				return nil, err
 			}
 			// scanFile returns (nil, nil) if the file is not an executable
 			if binInfo == nil {
-				return nil
+				continue
 			}
 			binInfos = append(binInfos, *binInfo)
 		}
-		return nil
-	})
+	}
 
-	return binInfos, err
+	return binInfos, nil
 }
 
 // scanFile scans file to try to return the Go binary info.
