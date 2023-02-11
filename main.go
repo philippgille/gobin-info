@@ -329,9 +329,9 @@ func fallbackURL(modulePath string) string {
 	// Let's apply this, but warn that it might be wrong
 	subs := strings.Split(modulePath, "/")
 	if len(subs) < 3 {
-		return "❓https://" + modulePath + "❓"
+		return "https://" + modulePath + " (❓)"
 	}
-	return "❓https://" + subs[0] + "/" + subs[1] + "/" + subs[2] + "❓"
+	return "https://" + subs[0] + "/" + subs[1] + "/" + subs[2] + " (❓)"
 }
 
 func printResult(binInfos []BinInfo) {

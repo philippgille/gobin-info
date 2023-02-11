@@ -35,11 +35,11 @@ arc          v3.5.1                             https://github.com/mholt/archive
 dlv          v1.20.1                            https://github.com/go-delve/delve
 fyne_demo    v2.3.0                             https://github.com/fyne-io/fyne
 go-outline   v0.0.0-20210608161538-9736a4bde949 https://github.com/ramya-rao-a/go-outline
-go1.17       v0.0.0-20220609182932-6cd2f0e318f7 ❓https://go.googlesource.com/dl❓
+go1.17       v0.0.0-20220609182932-6cd2f0e318f7 https://go.googlesource.com/dl (❓)
 gomodifytags v1.16.0                            https://github.com/fatih/gomodifytags
 gopkgs       v2.1.2                             https://github.com/uudashr/gopkgs
 goplay       v1.0.0                             https://github.com/haya14busa/goplay
-gopls        v0.11.0                            ❓https://go.googlesource.com/tools❓
+gopls        v0.11.0                            https://go.googlesource.com/tools (❓)
 gotests      v1.6.0                             https://github.com/cweill/gotests
 impl         v1.1.0                             https://github.com/josharian/impl
 lazygit      v0.32.2                            https://github.com/jesseduffield/lazygit
