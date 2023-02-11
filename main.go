@@ -129,6 +129,10 @@ func scanDir(dir string) ([]BinInfo, error) {
 			if err != nil {
 				return err
 			}
+			// scanFile returns (nil, nil) if the file is not an executable
+			if binInfo == nil {
+				return nil
+			}
 			binInfos = append(binInfos, *binInfo)
 		}
 		return nil
