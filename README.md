@@ -1,5 +1,9 @@
 # gobin-info
 
+[![build](https://github.com/philippgille/gobin-info/actions/workflows/build.yml/badge.svg)](https://github.com/philippgille/gobin-info/actions/workflows/build.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/philippgille/gobin-info)](https://goreportcard.com/report/github.com/philippgille/gobin-info)
+[![GitHub Releases](https://img.shields.io/github/release/philippgille/gobin-info.svg)](https://github.com/philippgille/gobin-info/releases)
+
 `gobin-info` lists your locally installed Go binaries alongside their version and original Git repository.
 
 It's kind of like a convenience wrapper around `go version -m ...` with some niceties on top, like vanity URL resolving.
