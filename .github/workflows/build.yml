@@ -1,0 +1,26 @@
+name: build
+# Push is enough even for PRs from maintainers, but not from contributors
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [ '1.18', '1.19', '1.20' ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go version
+          go env
+
+      # First build to check for compile errors
+      - run: go build -v
+
+      # Then lint, taking `.golangci.yml` into account
+      - uses: golangci/golangci-lint-action@v3
+
+      # TODO: Test
+      # - run: go test -v .
