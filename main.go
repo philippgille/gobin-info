@@ -204,7 +204,7 @@ func scanDir(path string) ([]BinInfo, error) {
 	}
 
 	wg := sync.WaitGroup{}
-	resChan := make(chan *BinInfo, len(entries))
+	resChan := make(chan BinInfo, len(entries))
 	errChan := make(chan error, len(entries))
 	for _, entry := range entries {
 		wg.Add(1)
@@ -213,7 +213,6 @@ func scanDir(path string) ([]BinInfo, error) {
 
 			// Skip entries that are neither regular files (e.g. directories) nor symlinks
 			if !(entry.Type().IsRegular() || entry.Type()&fs.ModeSymlink != 0) {
-				resChan <- nil
 				return
 			}
 
@@ -229,10 +228,10 @@ func scanDir(path string) ([]BinInfo, error) {
 			}
 			// scanFile returns (nil, nil) if the file is not an executable
 			if binInfo == nil {
-				resChan <- nil
 				return
 			}
-			resChan <- binInfo
+
+			resChan <- *binInfo
 		}(entry)
 	}
 
@@ -245,12 +244,12 @@ func scanDir(path string) ([]BinInfo, error) {
 	default:
 	}
 
-	// With no error, we know that the resChan has len(entries) values.
-	for i := 0; i < len(entries); i++ {
-		binInfo := <-resChan
-		if binInfo != nil {
-			binInfos = append(binInfos, *binInfo)
-		}
+	// Usually the sender should close, but with the WaitGroup
+	// we know that there will be no more writes to the channel,
+	// and it allows us to conveniently range over it.
+	close(resChan)
+	for binInfo := range resChan {
+		binInfos = append(binInfos, binInfo)
 	}
 
 	return binInfos, nil
