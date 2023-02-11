@@ -93,6 +93,9 @@ var (
 )
 
 func main() {
+	// Disable timestamps in STDERR log output
+	log.SetFlags(0)
+
 	// Precondition: CLI must be called with one argument.
 	// os.Args always holds the name of the program as the first argument.
 	if len(os.Args) != 2 {
