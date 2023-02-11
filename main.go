@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"debug/buildinfo"
+	"errors"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -100,17 +101,35 @@ func main() {
 
 	flag.Parse()
 
+	// Get path
+	path, err := getPath()
+	if err != nil {
+		log.Fatalln("Couldn't get path:", err)
+	}
+
+	// Iterate trough files in the path
+	log.Println("Scanning", path)
+	binInfos, err := scanDir(path)
+	if err != nil {
+		log.Fatalln("Error scanning dir:", err)
+	}
+
+	// Print result
+	printResult(binInfos)
+}
+
+func getPath() (string, error) {
 	var path string
 	var err error
 	if *wd {
 		path, err = os.Getwd()
 		if err != nil {
-			log.Fatalln("Error getting current working directory:", err)
+			return "", fmt.Errorf("couldn't get current working directory: %w", err)
 		}
 	} else if *gobin {
 		path = os.Getenv("GOBIN")
 		if path == "" {
-			log.Fatalln("GOBIN environment variable is empty or not set.")
+			return "", errors.New("GOBIN environment variable is empty or not set")
 		}
 	} else if *gopath {
 		env := os.Getenv("GOPATH")
@@ -120,7 +139,7 @@ func main() {
 			log.Println("GOPATH is not set, falling back to $HOME/go like Go does")
 			env, err = os.UserHomeDir()
 			if err != nil {
-				log.Fatalln("Couldn't get user home directory:", err)
+				return "", fmt.Errorf("couldn't get user home directory: %w", err)
 			}
 			env = filepath.Join(env, "go")
 		}
@@ -134,30 +153,7 @@ func main() {
 		path = os.Args[1]
 	}
 
-	log.Println("Scanning", path)
-
-	// Iterate trough files in the path
-	binInfos, err := scanDir(path)
-	if err != nil {
-		log.Fatalln("Error scanning dir:", err)
-	}
-
-	var maxFileNameLen int
-	var maxVersionLen int
-	for _, binInfo := range binInfos {
-		if len(binInfo.filename) > maxFileNameLen {
-			maxFileNameLen = len(binInfo.filename)
-		}
-		if len(binInfo.moduleVersion) > maxVersionLen {
-			maxVersionLen = len(binInfo.moduleVersion)
-		}
-	}
-	for _, binInfo := range binInfos {
-		filenameWithPadding := binInfo.filename + strings.Repeat(" ", maxFileNameLen-len(binInfo.filename))
-		versionWithPadding := binInfo.moduleVersion + strings.Repeat(" ", maxVersionLen-len(binInfo.moduleVersion))
-
-		fmt.Printf("%s %s %s\n", filenameWithPadding, versionWithPadding, binInfo.repoURL)
-	}
+	return path, nil
 }
 
 // scanDir scans a directory for executables to run scanFile on.
@@ -313,4 +309,23 @@ func fallbackURL(modulePath string) string {
 		return "❓https://" + modulePath + "❓"
 	}
 	return "❓https://" + subs[0] + "/" + subs[1] + "/" + subs[2] + "❓"
+}
+
+func printResult(binInfos []BinInfo) {
+	var maxFileNameLen int
+	var maxVersionLen int
+	for _, binInfo := range binInfos {
+		if len(binInfo.filename) > maxFileNameLen {
+			maxFileNameLen = len(binInfo.filename)
+		}
+		if len(binInfo.moduleVersion) > maxVersionLen {
+			maxVersionLen = len(binInfo.moduleVersion)
+		}
+	}
+	for _, binInfo := range binInfos {
+		filenameWithPadding := binInfo.filename + strings.Repeat(" ", maxFileNameLen-len(binInfo.filename))
+		versionWithPadding := binInfo.moduleVersion + strings.Repeat(" ", maxVersionLen-len(binInfo.moduleVersion))
+
+		fmt.Printf("%s %s %s\n", filenameWithPadding, versionWithPadding, binInfo.repoURL)
+	}
 }
